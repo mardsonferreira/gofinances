@@ -24,22 +24,25 @@ import { getBottomSpace } from 'react-native-iphone-x-helper';
 export function Dashboard() {
     const data = [
         {
+            type: 'income',
             title: 'Desenvolvimento de site',
             amount: 'R$ 12000',
             date: '19/03/2022',
             category: { name: 'Vendas', icon: 'dollar-sign' },
         },
         {
-            title: 'Desenvolvimento de site',
-            amount: 'R$ 12000',
-            date: '19/03/2022',
-            category: { name: 'Vendas', icon: 'dollar-sign' },
+            type: 'expense',
+            title: 'Hamburgueria Pizzy',
+            amount: 'R$ 59,00',
+            date: '20/03/2022',
+            category: { name: 'Alimentação', icon: 'coffee' },
         },
         {
-            title: 'Desenvolvimento de site',
-            amount: 'R$ 12000',
-            date: '19/03/2022',
-            category: { name: 'Vendas', icon: 'dollar-sign' },
+            type: 'expense',
+            title: 'Aluguel Apartamento',
+            amount: 'R$ 1200',
+            date: '20/03/2022',
+            category: { name: 'Moradia', icon: 'shopping-bag' },
         },
     ];
 
@@ -93,7 +96,7 @@ export function Dashboard() {
                     renderItem={({ item }) => <TransactionCard data={item} />}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{
-                        paddingBottom: getBottomSpace()
+                        paddingBottom: getBottomSpace(),
                     }}
                 />
             </Transactions>

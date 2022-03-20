@@ -17,6 +17,7 @@ interface Category {
 }
 interface TransactionCardProps {
     data: {
+        type: 'income' | 'expense';
         title: string;
         amount: string;
         category: Category;
@@ -27,7 +28,10 @@ export function TransactionCard({ data }: TransactionCardProps) {
     return (
         <Container>
             <Title>{data.title}</Title>
-            <Amount>{data.amount}</Amount>
+            <Amount type={data.type}>
+                {data.type === 'expense' && '- '}
+                {data.amount}
+            </Amount>
 
             <Footer>
                 <Category>
