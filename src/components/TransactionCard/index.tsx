@@ -15,16 +15,19 @@ interface Category {
     name: string;
     icon: string;
 }
-interface TransactionCardProps {
-    data: {
-        type: 'income' | 'expense';
-        title: string;
-        amount: string;
-        category: Category;
-        date: string;
-    };
+export interface TransactionCardProps {
+   type: 'income' | 'expense';
+    title: string;
+    amount: string;
+    category: Category;
+    date: string;
 }
-export function TransactionCard({ data }: TransactionCardProps) {
+
+interface Props {
+    data: TransactionCardProps;
+}
+
+export function TransactionCard({ data }: Props) {
     return (
         <Container>
             <Title>{data.title}</Title>

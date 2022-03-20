@@ -1,5 +1,4 @@
 import React from 'react';
-import { Feather } from '@expo/vector-icons';
 
 import {
     Container,
@@ -18,12 +17,16 @@ import {
 } from './styles';
 
 import { HighlightCard } from '../../components/HighlightCard';
-import { TransactionCard } from '../../components/TransactionCard';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
+import { TransactionCard, TransactionCardProps } from '../../components/TransactionCard';
+
+export interface DataListProps extends TransactionCardProps {
+    id: string;
+}
 
 export function Dashboard() {
-    const data = [
+    const data: DataListProps[] = [
         {
+            id: '1',
             type: 'income',
             title: 'Desenvolvimento de site',
             amount: 'R$ 12000',
@@ -31,6 +34,7 @@ export function Dashboard() {
             category: { name: 'Vendas', icon: 'dollar-sign' },
         },
         {
+            id: '2',
             type: 'expense',
             title: 'Hamburgueria Pizzy',
             amount: 'R$ 59,00',
@@ -38,6 +42,7 @@ export function Dashboard() {
             category: { name: 'Alimentação', icon: 'coffee' },
         },
         {
+            id: '3',
             type: 'expense',
             title: 'Aluguel Apartamento',
             amount: 'R$ 1200',
@@ -93,11 +98,8 @@ export function Dashboard() {
 
                 <TransactionList
                     data={data}
+                    keyExtractor={item => item.id}
                     renderItem={({ item }) => <TransactionCard data={item} />}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{
-                        paddingBottom: getBottomSpace(),
-                    }}
                 />
             </Transactions>
         </Container>
