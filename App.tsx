@@ -3,32 +3,31 @@ import AppLoading from 'expo-app-loading';
 import { ThemeProvider } from 'styled-components';
 
 import {
-  useFonts,
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_700Bold
+    useFonts,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_700Bold,
 } from '@expo-google-fonts/poppins';
 
 import theme from './src/global/styles/theme';
 
 // import { Dashboard } from './src/screens/Dashboard';
-// import { Register } from './src/screens/Register';
-import { CategorySelect } from './src/screens/CategorySelect';
+import { Register } from './src/screens/Register';
 
 export default function App() {
-  const [fonstLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_700Bold
-  });
+    const [fonstLoaded] = useFonts({
+        Poppins_400Regular,
+        Poppins_500Medium,
+        Poppins_700Bold,
+    });
 
-  if (!fonstLoaded) {
-    return <AppLoading />;
-  }
+    if (!fonstLoaded) {
+        return <AppLoading />;
+    }
 
-  return (
-    <ThemeProvider theme={theme}>
-      <CategorySelect />
-    </ThemeProvider>
-  );
+    return (
+        <ThemeProvider theme={theme}>
+            <Register />
+        </ThemeProvider>
+    );
 }
