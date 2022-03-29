@@ -43,7 +43,7 @@ export function Register() {
         name: 'Categoria',
     });
 
-    const { control, handleSubmit, formState: { errors } } = useForm({
+    const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
         resolver: yupResolver(schema),
     });
 

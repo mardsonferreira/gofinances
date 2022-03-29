@@ -7,9 +7,9 @@ import { Container, Error } from './styles';
 import { Input } from '../Input';
 
 interface InputFormProps extends TextInputProps {
-    control: Control;
+    control: Control<any, any>;
     name: string;
-    error: string;
+    error: string | undefined;
 }
 
 export function InputForm({ control, name, error, ...rest }: InputFormProps) {
