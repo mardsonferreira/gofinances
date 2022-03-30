@@ -2,10 +2,11 @@ import styled from 'styled-components/native';
 import { FlatList, FlatListProps } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Feather } from '@expo/vector-icons';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { CategoryListProps, CategoryProps } from './types';
 
-export const Container = styled.View`
+export const Container = styled(GestureHandlerRootView)`
     flex: 1;
     background-color: ${({ theme }) => theme.colors.background};
 `;
