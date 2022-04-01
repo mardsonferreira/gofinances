@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useForm } from 'react-hook-form';
 
@@ -43,7 +44,13 @@ export function Register() {
         name: 'Categoria',
     });
 
-    const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
+    const dataKey = '@gofinances:transactions';
+
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<FormData>({
         resolver: yupResolver(schema),
     });
 
@@ -59,7 +66,7 @@ export function Register() {
         setCategoryModalOpen(false);
     }
 
-    function handleRegister(form: FormData) {
+    async function handleRegister(form: FormData) {
         if (!transactionType) {
             return Alert.alert('Selecione o tipo da transação');
         }
@@ -68,15 +75,37 @@ export function Register() {
             return Alert.alert('Selecione a categoria');
         }
 
-        const data = {
+        const newTransaction = {
             name: form.name,
             amount: form.amount,
             transactionType,
             category: category.key,
         };
 
-        console.log(data);
+        try {
+            const storageData = await AsyncStorage.getItem(dataKey);
+            const currentData = storageData ? JSON.parse(storageData) : [];
+
+            const dataFormatted = [
+                ...currentData,
+                newTransaction,
+            ];
+
+            await AsyncStorage.setItem(dataKey, JSON.stringify(dataFormatted));
+        } catch (error) {
+            console.log(error);
+            Alert.alert('Não foi possível salvar transação');
+        }
     }
+
+    useEffect(() => {
+        async function loadData() {
+            const data = await AsyncStorage.getItem(dataKey);
+            console.log(data);
+        }
+
+        loadData();
+    }, []);
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -102,7 +131,6 @@ export function Register() {
                             placeholder="Preço"
                             keyboardType="numeric"
                             error={errors.amount && errors.amount.message}
-
                         />
 
                         <TransactionTypes>
