@@ -29,17 +29,38 @@ export interface DataListProps extends TransactionCardProps {
     id: string;
 }
 
+interface HighlightProps {
+    amount: string;
+}
+interface HighlightData {
+    incomes: HighlightProps;
+    expenses: HighlightProps;
+    total: HighlightProps;
+}
+
 export function Dashboard() {
-    const [data, setData] = useState<DataListProps[]>([]);
     const dataKey = '@gofinances:transactions';
+    const [transactions, setTransactions] = useState<DataListProps[]>([]);
+    const [highlightData, setHighlightData] = useState<HighlightData>(
+        {} as HighlightData
+    );
 
     async function loadTransactions() {
         const response = await AsyncStorage.getItem(dataKey);
 
         const transactions = response ? JSON.parse(response) : [];
 
+        let incomeTotal = 0;
+        let expenseTotal = 0;
+
         const transactionsFormatted: DataListProps[] = transactions.map(
             (item: DataListProps) => {
+                if (item.type === 'income') {
+                    incomeTotal += Number(item.amount);
+                } else {
+                    expenseTotal += Number(item.amount);
+                }
+
                 const amount = Number(item.amount).toLocaleString('pt-BR', {
                     style: 'currency',
                     currency: 'BRL',
@@ -62,7 +83,30 @@ export function Dashboard() {
             }
         );
 
-        setData(transactionsFormatted);
+        setTransactions(transactionsFormatted);
+
+        const total = incomeTotal - expenseTotal;
+
+        setHighlightData({
+            expenses: {
+                amount: expenseTotal.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                }),
+            },
+            incomes: {
+                amount: incomeTotal.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                }),
+            },
+            total: {
+                amount: total.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                }),
+            },
+        });
     }
 
     useFocusEffect(
@@ -97,19 +141,19 @@ export function Dashboard() {
                 <HighlightCard
                     type="up"
                     title="Entradas"
-                    amount="R$ 17.400"
+                    amount={highlightData?.incomes?.amount}
                     lastTransaction="Última entrada dia 13 de abril"
                 />
                 <HighlightCard
                     type="down"
                     title="Saídas"
-                    amount="R$ 1.259"
+                    amount={highlightData?.expenses?.amount}
                     lastTransaction="Última saída dia 03 de abril"
                 />
                 <HighlightCard
                     type="total"
                     title="Total"
-                    amount="R$ 16.141"
+                    amount={highlightData?.total?.amount}
                     lastTransaction="01 à 16 de abril"
                 />
             </HighlightCards>
@@ -118,7 +162,7 @@ export function Dashboard() {
                 <Title>Listagem</Title>
 
                 <TransactionList
-                    data={data}
+                    data={transactions}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => <TransactionCard data={item} />}
                 />
