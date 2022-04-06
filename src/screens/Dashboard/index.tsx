@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
     Container,
@@ -14,43 +15,58 @@ import {
     Transactions,
     Title,
     TransactionList,
-    LogoutButton
+    LogoutButton,
 } from './styles';
 
 import { HighlightCard } from '../../components/HighlightCard';
-import { TransactionCard, TransactionCardProps } from '../../components/TransactionCard';
+import {
+    TransactionCard,
+    TransactionCardProps,
+} from '../../components/TransactionCard';
 
 export interface DataListProps extends TransactionCardProps {
     id: string;
 }
 
 export function Dashboard() {
-    const data: DataListProps[] = [
-        {
-            id: '1',
-            type: 'income',
-            title: 'Desenvolvimento de site',
-            amount: 'R$ 12000',
-            date: '19/03/2022',
-            category: { name: 'Vendas', icon: 'dollar-sign' },
-        },
-        {
-            id: '2',
-            type: 'expense',
-            title: 'Hamburgueria Pizzy',
-            amount: 'R$ 59,00',
-            date: '20/03/2022',
-            category: { name: 'Alimentação', icon: 'coffee' },
-        },
-        {
-            id: '3',
-            type: 'expense',
-            title: 'Aluguel Apartamento',
-            amount: 'R$ 1200',
-            date: '20/03/2022',
-            category: { name: 'Moradia', icon: 'shopping-bag' },
-        },
-    ];
+    const [data, setData] = useState<DataListProps[]>([]);
+    const dataKey = '@gofinances:transactions';
+
+    async function loadTransactions() {
+        const response = await AsyncStorage.getItem(dataKey);
+
+        const transactions = response ? JSON.parse(response) : [];
+
+        const transactionsFormatted: DataListProps[] = transactions.map(
+            (item: DataListProps) => {
+                const amount = Number(item.amount).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                });
+
+                const date = Intl.DateTimeFormat('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: '2-digit',
+                }).format(new Date(item.date));
+
+                return {
+                    id: item.id,
+                    name: item.name,
+                    amount,
+                    type: item.type,
+                    category: item.category,
+                    date,
+                }
+            }
+        );
+
+        setData(transactionsFormatted);
+    }
+
+    useEffect(() => {
+        loadTransactions();
+    }, []);
 
     return (
         <Container>
@@ -100,7 +116,7 @@ export function Dashboard() {
 
                 <TransactionList
                     data={data}
-                    keyExtractor={item => item.id}
+                    keyExtractor={(item) => item.id}
                     renderItem={({ item }) => <TransactionCard data={item} />}
                 />
             </Transactions>
