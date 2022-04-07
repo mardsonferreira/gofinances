@@ -34,6 +34,7 @@ export interface DataListProps extends TransactionCardProps {
 
 interface HighlightProps {
     amount: string;
+    lastTransaction: string;
 }
 interface HighlightData {
     incomes: HighlightProps;
@@ -51,6 +52,27 @@ export function Dashboard() {
     );
 
     const theme = useTheme();
+
+    function getLastTransactionDate(
+        collection: DataListProps[],
+        type: 'income' | 'expense'
+    ) {
+        const lastTransaction = new Date(
+            Math.max.apply(
+                Math,
+                collection
+                    .filter((item) => item.type === type)
+                    .map((item) => new Date(item.date).getTime())
+            )
+        );
+
+        return `${lastTransaction.getDate()} de ${lastTransaction.toLocaleString(
+            'pt-BR',
+            {
+                month: 'long',
+            }
+        )}`;
+    }
 
     async function loadTransactions() {
         const response = await AsyncStorage.getItem(dataKey);
@@ -92,6 +114,16 @@ export function Dashboard() {
 
         setTransactions(transactionsFormatted);
 
+        const lastTransactionIncomes = getLastTransactionDate(
+            transactions,
+            'income'
+        );
+        const lastTransactionExpenses = getLastTransactionDate(
+            transactions,
+            'expense'
+        );
+        const totalInterval = `01 a ${lastTransactionExpenses}`;
+
         const total = incomeTotal - expenseTotal;
 
         setHighlightData({
@@ -100,18 +132,21 @@ export function Dashboard() {
                     style: 'currency',
                     currency: 'BRL',
                 }),
+                lastTransaction: `Última saída dia ${lastTransactionIncomes}`,
             },
             incomes: {
                 amount: incomeTotal.toLocaleString('pt-BR', {
                     style: 'currency',
                     currency: 'BRL',
                 }),
+                lastTransaction: `Última entrada dia ${lastTransactionExpenses}`,
             },
             total: {
                 amount: total.toLocaleString('pt-BR', {
                     style: 'currency',
                     currency: 'BRL',
                 }),
+                lastTransaction: totalInterval,
             },
         });
 
@@ -128,7 +163,10 @@ export function Dashboard() {
         <Container>
             {isLoading ? (
                 <LoadContainer>
-                    <ActivityIndicator color={theme.colors.primary} size="large"/>
+                    <ActivityIndicator
+                        color={theme.colors.primary}
+                        size="large"
+                    />
                 </LoadContainer>
             ) : (
                 <>
@@ -157,19 +195,25 @@ export function Dashboard() {
                             type="up"
                             title="Entradas"
                             amount={highlightData.incomes.amount}
-                            lastTransaction="Última entrada dia 13 de abril"
+                            lastTransaction={
+                                highlightData.incomes.lastTransaction
+                            }
                         />
                         <HighlightCard
                             type="down"
                             title="Saídas"
                             amount={highlightData.expenses.amount}
-                            lastTransaction="Última saída dia 03 de abril"
+                            lastTransaction={
+                                highlightData.expenses.lastTransaction
+                            }
                         />
                         <HighlightCard
                             type="total"
                             title="Total"
                             amount={highlightData.total.amount}
-                            lastTransaction="01 à 16 de abril"
+                            lastTransaction={
+                                highlightData.total.lastTransaction
+                            }
                         />
                     </HighlightCards>
 
