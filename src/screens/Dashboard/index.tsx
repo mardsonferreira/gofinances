@@ -1,6 +1,8 @@
 import React, { useCallback, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTheme } from 'styled-components';
 
 import {
     Container,
@@ -17,6 +19,7 @@ import {
     Title,
     TransactionList,
     LogoutButton,
+    LoadContainer,
 } from './styles';
 
 import { HighlightCard } from '../../components/HighlightCard';
@@ -40,10 +43,14 @@ interface HighlightData {
 
 export function Dashboard() {
     const dataKey = '@gofinances:transactions';
+
+    const [isLoading, setIsLoading] = useState(true);
     const [transactions, setTransactions] = useState<DataListProps[]>([]);
     const [highlightData, setHighlightData] = useState<HighlightData>(
         {} as HighlightData
     );
+
+    const theme = useTheme();
 
     async function loadTransactions() {
         const response = await AsyncStorage.getItem(dataKey);
@@ -107,6 +114,8 @@ export function Dashboard() {
                 }),
             },
         });
+
+        setIsLoading(false);
     }
 
     useFocusEffect(
@@ -117,56 +126,66 @@ export function Dashboard() {
 
     return (
         <Container>
-            <Header>
-                <UserWrapper>
-                    <UserInfo>
-                        <Photo
-                            source={{
-                                uri: 'https://avatars.githubusercontent.com/u/5270702?v=4',
-                            }}
+            {isLoading ? (
+                <LoadContainer>
+                    <ActivityIndicator color={theme.colors.primary} size="large"/>
+                </LoadContainer>
+            ) : (
+                <>
+                    <Header>
+                        <UserWrapper>
+                            <UserInfo>
+                                <Photo
+                                    source={{
+                                        uri: 'https://avatars.githubusercontent.com/u/5270702?v=4',
+                                    }}
+                                />
+
+                                <User>
+                                    <UserGreeting>Olá,</UserGreeting>
+                                    <UserName>Mardson</UserName>
+                                </User>
+                            </UserInfo>
+                            <LogoutButton onPress={() => {}}>
+                                <Icon name="power" />
+                            </LogoutButton>
+                        </UserWrapper>
+                    </Header>
+
+                    <HighlightCards>
+                        <HighlightCard
+                            type="up"
+                            title="Entradas"
+                            amount={highlightData.incomes.amount}
+                            lastTransaction="Última entrada dia 13 de abril"
                         />
+                        <HighlightCard
+                            type="down"
+                            title="Saídas"
+                            amount={highlightData.expenses.amount}
+                            lastTransaction="Última saída dia 03 de abril"
+                        />
+                        <HighlightCard
+                            type="total"
+                            title="Total"
+                            amount={highlightData.total.amount}
+                            lastTransaction="01 à 16 de abril"
+                        />
+                    </HighlightCards>
 
-                        <User>
-                            <UserGreeting>Olá,</UserGreeting>
-                            <UserName>Mardson</UserName>
-                        </User>
-                    </UserInfo>
-                    <LogoutButton onPress={() => {}}>
-                        <Icon name="power" />
-                    </LogoutButton>
-                </UserWrapper>
-            </Header>
+                    <Transactions>
+                        <Title>Listagem</Title>
 
-            <HighlightCards>
-                <HighlightCard
-                    type="up"
-                    title="Entradas"
-                    amount={highlightData?.incomes?.amount}
-                    lastTransaction="Última entrada dia 13 de abril"
-                />
-                <HighlightCard
-                    type="down"
-                    title="Saídas"
-                    amount={highlightData?.expenses?.amount}
-                    lastTransaction="Última saída dia 03 de abril"
-                />
-                <HighlightCard
-                    type="total"
-                    title="Total"
-                    amount={highlightData?.total?.amount}
-                    lastTransaction="01 à 16 de abril"
-                />
-            </HighlightCards>
-
-            <Transactions>
-                <Title>Listagem</Title>
-
-                <TransactionList
-                    data={transactions}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => <TransactionCard data={item} />}
-                />
-            </Transactions>
+                        <TransactionList
+                            data={transactions}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <TransactionCard data={item} />
+                            )}
+                        />
+                    </Transactions>
+                </>
+            )}
         </Container>
     );
 }
