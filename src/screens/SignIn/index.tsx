@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 
@@ -18,26 +18,34 @@ import {
     SignInTitle,
     Footer,
     FooterWrapper,
+    Load
 } from './styles';
 
 export function SignIn() {
+    const [isLoading, setIsLoading] = useState(false);
     const { signInWithGoogle, signInWithApple } = useAuth();
 
     async function handleSignInWithGoogle() {
         try {
-            await signInWithGoogle();
+            setIsLoading(true);
+            return await signInWithGoogle();
         } catch (error) {
             console.log(error);
             Alert.alert('Não foi possível conectar a conta google');
+        } finally {
+            setIsLoading(false);
         }
     }
 
     async function handleSignInWithApple() {
         try {
-            await signInWithApple();
+            setIsLoading(true);
+            return await signInWithApple();
         } catch (error) {
             console.log(error);
             Alert.alert('Não foi possível conectar a conta apple');
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -71,6 +79,8 @@ export function SignIn() {
                         onPress={handleSignInWithApple}
                     />
                 </FooterWrapper>
+
+                { isLoading && <Load />}
             </Footer>
         </Container>
     );

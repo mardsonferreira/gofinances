@@ -22,8 +22,10 @@ interface User {
 
 interface IAuthContextData {
     user: User;
+    userStorageLoading: boolean;
     signInWithGoogle(): Promise<void>;
     signInWithApple(): Promise<void>;
+    signOut(): Promise<void>;
 }
 
 interface AuthorizationResponse {
@@ -42,7 +44,7 @@ const AuthContext = createContext({} as IAuthContextData);
 
 function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<User>({} as User);
-    const [loading, setLoading] = useState(true);
+    const [userStorageLoading, setUserStorageLoading] = useState(true);
     const userStorageKey = '@gofinances:users';
 
     async function signInWithGoogle() {
@@ -88,11 +90,13 @@ function AuthProvider({ children }: AuthProviderProps) {
             });
 
             if (credentials) {
+                const name = credentials.fullName!.givenName!;
+                const photo = `https://ui-avatars.com/api/?name=${name}&length=1`;
                 const userLogged = {
                     id: String(credentials.user),
                     email: credentials.email!,
-                    name: credentials.fullName!.givenName!,
-                    photo: undefined,
+                    name,
+                    photo,
                 };
 
                 setUser(userLogged);
@@ -106,6 +110,11 @@ function AuthProvider({ children }: AuthProviderProps) {
         }
     }
 
+    async function signOut() {
+        setUser({} as User);
+        await AsyncStorage.removeItem(userStorageKey);
+    }
+
     useEffect(() => {
         async function loadUserStorageData() {
             const userStoraged = await AsyncStorage.getItem(userStorageKey);
@@ -115,7 +124,7 @@ function AuthProvider({ children }: AuthProviderProps) {
                 setUser(userLogged);
             }
 
-            setLoading(false);
+            setUserStorageLoading(false);
         }
 
         loadUserStorageData();
@@ -125,8 +134,10 @@ function AuthProvider({ children }: AuthProviderProps) {
         <AuthContext.Provider
             value={{
                 user,
+                userStorageLoading,
                 signInWithGoogle,
                 signInWithApple,
+                signOut,
             }}
         >
             {children}
