@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusBar} from 'react-native';
+import { StatusBar } from 'react-native';
 import AppLoading from 'expo-app-loading';
 import { ThemeProvider } from 'styled-components';
 import 'intl';
@@ -13,12 +13,8 @@ import {
 } from '@expo-google-fonts/poppins';
 
 import theme from './src/global/styles/theme';
-import { NavigationContainer } from '@react-navigation/native';
 
-import { AppRoutes } from './src/routes/app.routes';
-
-import { SignIn } from './src/screens/SignIn';
-
+import { Routes } from './src/routes';
 import { AuthProvider } from './src/hooks/auth';
 
 export default function App() {
@@ -34,13 +30,10 @@ export default function App() {
 
     return (
         <ThemeProvider theme={theme}>
-            <NavigationContainer>
-                <StatusBar barStyle="light-content"/>
-                {/* <AppRoutes /> */}
-                <AuthProvider>
-                    <SignIn />
-                </AuthProvider>
-            </NavigationContainer>
+            <StatusBar barStyle="light-content" />
+            <AuthProvider>
+                <Routes />
+            </AuthProvider>
         </ThemeProvider>
     );
 }
