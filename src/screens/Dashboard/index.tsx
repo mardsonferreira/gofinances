@@ -45,8 +45,6 @@ interface HighlightData {
 }
 
 export function Dashboard() {
-    const dataKey = '@gofinances:transactions';
-
     const [isLoading, setIsLoading] = useState(true);
     const [transactions, setTransactions] = useState<DataListProps[]>([]);
     const [highlightData, setHighlightData] = useState<HighlightData>(
@@ -56,16 +54,24 @@ export function Dashboard() {
     const theme = useTheme();
     const { user, signOut } = useAuth();
 
+    const dataKey = `@gofinances:transactions_user:${user.id}`;
+
     function getLastTransactionDate(
         collection: DataListProps[],
         type: 'income' | 'expense'
     ) {
+        const collectionFiltered = collection.filter(
+            (item) => item.type === type
+        );
+
+        if (collectionFiltered.length === 0) {
+            return 0;
+        }
+
         const lastTransaction = new Date(
             Math.max.apply(
                 Math,
-                collection
-                    .filter((item) => item.type === type)
-                    .map((item) => new Date(item.date).getTime())
+                collectionFiltered.map((item) => new Date(item.date).getTime())
             )
         );
 
@@ -125,7 +131,10 @@ export function Dashboard() {
             transactions,
             'expense'
         );
-        const totalInterval = `01 a ${lastTransactionExpenses}`;
+        const totalInterval =
+            lastTransactionExpenses === 0
+                ? 'Não há transações'
+                : `01 a ${lastTransactionExpenses}`;
 
         const total = incomeTotal - expenseTotal;
 
@@ -135,14 +144,20 @@ export function Dashboard() {
                     style: 'currency',
                     currency: 'BRL',
                 }),
-                lastTransaction: `Última saída dia ${lastTransactionIncomes}`,
+                lastTransaction:
+                    lastTransactionExpenses === 0
+                        ? 'Não há transações'
+                        : `Última saída dia ${lastTransactionExpenses}`,
             },
             incomes: {
                 amount: incomeTotal.toLocaleString('pt-BR', {
                     style: 'currency',
                     currency: 'BRL',
                 }),
-                lastTransaction: `Última entrada dia ${lastTransactionExpenses}`,
+                lastTransaction:
+                    lastTransactionIncomes === 0
+                        ? 'Não há transações'
+                        : `Última entrada dia ${lastTransactionIncomes}`,
             },
             total: {
                 amount: total.toLocaleString('pt-BR', {

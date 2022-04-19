@@ -8,6 +8,7 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
+import { useAuth } from '../../hooks/auth';
 
 import { InputForm } from '../../components/Form/InputForm';
 import { Button } from '../../components/Form/Button';
@@ -51,8 +52,7 @@ export function Register() {
     });
 
     const navigation = useNavigation<RegisterNavigationProps>();
-
-    const dataKey = '@gofinances:transactions';
+    const { user } = useAuth();
 
     const {
         control,
@@ -83,6 +83,8 @@ export function Register() {
         if (category.key === 'category') {
             return Alert.alert('Selecione a categoria');
         }
+
+        const dataKey = `@gofinances:transactions_user:${user.id}`;
 
         const newTransaction = {
             id: String(uuid.v4()),
